@@ -1,19 +1,18 @@
 package com.techmania.mathgame
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
+import org.w3c.dom.Text
 import java.util.*
 import kotlin.random.Random
 
@@ -39,12 +38,16 @@ class MainActivity : AppCompatActivity() {
     lateinit var number : TextView
 
     lateinit var home : Button
+    lateinit var numberMax : TextView
 
     var correctAnswer = 0
-    var userLife = 3
-    var countNum = 1
+    val startuserlife = 3
+    var userLife = startuserlife
+    val startCountNum = 1
+    var countNum = startCountNum
     var maxNo = 5
     var userAnswer = 0
+    var startgame = true // เก็บว่าเกมกำลังจะเริ่ม รันครั้งเดียว
 
     lateinit var timer: CountDownTimer
     private val startTimerInMillis : Long = 30000
@@ -69,6 +72,9 @@ class MainActivity : AppCompatActivity() {
         congrats2 = findViewById(R.id.congrats2)
         correctt = findViewById(R.id.correctt)
         wrongg = findViewById(R.id.wrongg)
+        numberMax = findViewById(R.id.numberMax)
+
+        numberMax.text = "/ $maxNo"
 
 
         var correctAnswer = 0
@@ -80,7 +86,17 @@ class MainActivity : AppCompatActivity() {
         congrats2.isVisible = false
 
         correctAnswer = gameContinue()
+        var ans = false
         println(" line 66 CorrectAnswer $correctAnswer")
+
+        if(startgame){
+            startgame=false
+            userLife = startuserlife
+            countNum = startCountNum
+            textLife.text = userLife.toString()
+            number.text = countNum.toString()
+
+        }
 ////////////////
         /*val number1 = Random.nextInt(0,50)
         val number2 = Random.nextInt(0,50)
@@ -105,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                 println("user answer $userAnswer")
                 println("correct answer at main $correctAnswer")
                 if(userAnswer == correctAnswer){ // ถ้าคำตอบถูก
+                    ans=true // set ว่าตอบถูก
                     buttonNext.isVisible = true
                     congrats.isVisible = true
                     correctt.isVisible = true
@@ -112,8 +129,11 @@ class MainActivity : AppCompatActivity() {
                     countNum++
                   //  number.text = countNum.toString()
 
-                    if(countNum == maxNo){ //ขำนวนข้อ 5 ข้อครบแล้ว ถึงเวลาแสดง pop-up
+                    if(countNum > maxNo){ //ขำนวนข้อ 5 ข้อครบแล้ว ถึงเวลาแสดง pop-up
                         popup()
+                        countNum=startCountNum // reset จำนวนที่ถูก
+                        userLife= startuserlife
+                        startgame = true //เริ่มเกมใหม่
                     }
 
                 }
@@ -123,6 +143,13 @@ class MainActivity : AppCompatActivity() {
                     userLife--
                    // textQuestion.text = "ผิดจย้า ลองใหม่น้า"
                     textLife.text = userLife.toString()
+
+                    if(userLife<=0){ //ผิดครบหมดแล้ว game over
+                        popup() // แก้เป็นผิด
+                        countNum=startCountNum
+                        userLife=startuserlife
+                        startgame = true //เริ่มเกมใหม่
+                    }
                 }
 
             }
@@ -133,7 +160,8 @@ class MainActivity : AppCompatActivity() {
             pauseTimer()
             resetTimer()
             correctAnswer = gameContinue()
-            if (userAnswer == correctAnswer){
+            if (ans){
+                ans=false
                 println("$userAnswer == $correctAnswer")
                 number.text = countNum.toString()
             }
